@@ -1,367 +1,1466 @@
-<!doctype html>
-<html lang="id">
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Data Segono Official - Edit & Mutasi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>BUMDes Tampingan - Sistem Pembukuan Keuangan Profesional</title>
+    <!-- Google Fonts & Chart.js -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        body { background: #f8fafc; color: #1e293b; font-family: 'Inter', sans-serif; }
-        .stat-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #3b82f6; }
-        .tab-button.active { border-bottom: 4px solid #1d4ed8; color: #1d4ed8; font-weight: 800; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); z-index: 1000; overflow-y: auto; padding: 15px; }
-        .modal.active { display: flex; align-items: flex-start; justify-content: center; }
-        .kk-box { background: white; border: 1px solid #e2e8f0; border-radius: 15px; margin-bottom: 1.2rem; overflow: hidden; }
-        input, select { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px; width: 100%; font-size: 0.9rem; }
-        .label-text { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
-        #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .list-item-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.85rem; }
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #0f172a;
+            --sidebar-item-hover: #1e293b;
+            --sidebar-item-active: #0d9488;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-white: #ffffff;
+            --primary: #0d9488;
+            --primary-hover: #0f766e;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-sidebar: #020617;
+            --sidebar-item-hover: #0f172a;
+            --sidebar-item-active: #14b8a6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #14b8a6;
+            --primary-hover: #2dd4bf;
+            --border: #334155;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* Utility Classes */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 600; }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .no-print { display: block; }
+        .show-on-print { display: none !important; }
+
+        /* Login Screen */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .login-container {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+            width: 100%;
+            max-width: 420px;
+            color: var(--text-main);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Layout Main App */
+        #app-screen {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            color: var(--text-white);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid #1e293b;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand img {
+            max-width: 35px;
+            max-height: 35px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0.75rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            color: var(--text-white);
+            background-color: var(--sidebar-item-hover);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--sidebar-item-active);
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid #1e293b;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2rem;
+            min-width: 0;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background-color: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Dashboard View */
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-stat {
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+        }
+
+        .card-stat.pemasukan { border-left-color: var(--success); }
+        .card-stat.pengeluaran { border-left-color: var(--danger); }
+        .card-stat.lababerisih { border-left-color: var(--primary); }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .grid-charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-charts { grid-template-columns: 1fr; }
+        }
+
+        .card-chart {
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            min-height: 350px;
+        }
+
+        /* Modules Styles */
+        .module-section {
+            display: none;
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background-color: var(--bg-card);
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Data Tables & Layouts */
+        .table-container {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Forms Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Coretax Style Reports Presentation */
+        .report-paper {
+            background-color: white;
+            color: #1e293b;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 210mm; /* A4 Width */
+            margin: 0 auto;
+        }
+
+        .report-kop {
+            display: flex;
+            align-items: center;
+            border-bottom: 3px double #0f172a;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-kop img {
+            max-height: 80px;
+            max-width: 80px;
+            object-fit: contain;
+            margin-right: 1.5rem;
+        }
+
+        .report-kop-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .report-kop-text p {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .report-title-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .report-title-container h2 {
+            font-size: 1.35rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .report-table {
+            width: 100%;
+            margin-bottom: 2.5rem;
+        }
+
+        .report-table th {
+            background-color: #334155 !important;
+            color: white !important;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .report-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #0f172a !important;
+            font-size: 0.9rem;
+        }
+
+        .row-category {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .row-total {
+            font-weight: 700;
+            background-color: #e2e8f0;
+            border-top: 2px solid #334155;
+            border-bottom: 2px double #334155 !important;
+        }
+
+        .report-signatures {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+            page-break-inside: avoid;
+        }
+
+        .sig-block {
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .sig-space {
+            height: 70px;
+        }
+
+        /* Theme Buttons */
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-edit { background-color: var(--warning); color: white; }
+        .btn-delete { background-color: var(--danger); color: white; }
+
+        /* Print Media Styles */
+        @media print {
+            .no-print { display: none !important; }
+            .show-on-print { display: block !important; }
+            body { background-color: white !important; color: black !important; }
+            .main-content { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
+            .report-paper { box-shadow: none !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            @page { size: A4; margin: 15mm 12mm; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- SCREEN LOGIN -->
     <div id="login-screen">
-        <div class="bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 text-center">
-            <div class="text-5xl mb-4"></div>
-            <h2 class="text-2xl font-black mb-6 uppercase">Admin Login</h2>
-            <input type="password" id="input-pass" placeholder="ïïïï" class="mb-4 text-center text-3xl border-2 p-4 rounded-2xl w-full outline-none">
-            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">MASUK SISTEM</button>
+        <div class="login-container">
+            <div class="login-header">
+                <h2>BUMDes Tampingan</h2>
+                <p style="color: var(--text-muted)">Sistem Pembukuan Keuangan Syariah & Kontemporer</p>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="login-username" class="form-control" placeholder="Masukkan username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-password" class="form-control" placeholder="Masukkan password">
+            </div>
+            <button class="btn" onclick="handleLogin()">Masuk Ke Sistem</button>
+            <p id="login-error" class="text-danger text-center" style="margin-top:1rem; font-size:0.9rem;"></p>
         </div>
     </div>
 
-    <div id="app-content" class="hidden">
-        <header class="bg-blue-800 text-white px-6 py-8 shadow-xl text-center">
-            <h1 class="text-2xl font-black uppercase tracking-tighter" id="head-dusun">Dusun Segono</h1>
-            <p class="text-xs opacity-80" id="head-alamat">Memuat data...</p>
-        </header>
+    <!-- SCREEN UTAMA APLIKASI -->
+    <div id="app-screen" style="display:none;">
+        <!-- SIDEBAR -->
+        <nav class="sidebar no-print">
+            <div class="sidebar-brand">
+                <img id="logo-preview-sidebar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 2v20M2 12h20'/></svg>" alt="Logo Menu">
+                <span>BUMDes Tampingan</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active" onclick="switchModule('dashboard', this)">Dashboard</li>
+                <li class="sidebar-item" id="menu-pemasukan" onclick="switchModule('pemasukan', this)">Pemasukan</li>
+                <li class="sidebar-item" id="menu-pengeluaran" onclick="switchModule('pengeluaran', this)">Pengeluaran</li>
+                <li class="sidebar-item" onclick="switchModule('laporan', this)">Laporan Keuangan</li>
+                <li class="sidebar-item" style="background-color: #28a745; color: white; font-weight: bold;" onclick="tarikDataDariSheets()">üîÑ Tarik Data Sheets</li>
+                <li class="sidebar-item" id="menu-pengaturan" onclick="switchModule('pengaturan', this)">Pengaturan & Profil</li>
+            </ul>
 
-        <nav class="bg-white shadow-md flex justify-around sticky top-0 z-50">
-            <button class="tab-button active py-5 px-4 text-xs font-black uppercase" data-tab="dashboard"> Beranda</button>
-            <button class="tab-button py-5 px-4 text-xs font-black uppercase" data-tab="penduduk"> Data Warga</button>
-            <button class="tab-button py-5 px-4 text-xs font-black uppercase" data-tab="pengaturan"> Panel</button>
+            <div class="sidebar-footer">
+                <p>User: <span id="user-display-name">Admin</span></p>
+                <p>Role: <span id="user-display-role">Super Admin</span></p>
+                <button class="btn-action btn-delete" style="width:100%; margin-top:10px; justify-content:center;" onclick="handleLogout()">Keluar</button>
+            </div>
         </nav>
 
-        <main class="container mx-auto p-4 pb-24">
-            <div id="tab-dashboard" class="tab-content">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="stat-card p-5 border-l-blue-600"><p class="label-text">Warga Aktif</p><h3 id="st-total" class="text-3xl font-black">0</h3></div>
-                    <div class="stat-card p-5 border-l-orange-500"><p class="label-text">Total KK</p><h3 id="st-kk" class="text-3xl font-black">0</h3></div>
-                    <div class="stat-card p-5 border-l-emerald-500"><p class="label-text">Laki-Laki</p><h3 id="st-laki" class="text-3xl font-black">0</h3></div>
-                    <div class="stat-card p-5 border-l-rose-500"><p class="label-text">Perempuan</p><h3 id="st-perempuan" class="text-3xl font-black">0</h3></div>
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <div class="top-bar no-print">
+                <div class="section-title" id="topbar-title">Dashboard Analisis</div>
+                <div class="user-profile">
+                    <button class="btn-action" style="background-color: var(--border); color: var(--text-main)" onclick="toggleDarkMode()">üåì Mode Transisi</button>
+                    <span id="current-date-time" style="font-size:0.9rem; color:var(--text-muted)"></span>
                 </div>
+            </div>
 
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-red-100 mb-6">
-                    <h2 class="text-red-700 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> Laporan Mutasi (Bulan Ini)
-                    </h2>
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-blue-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-blue-600 uppercase">Lahir</p><h4 id="mu-lahir" class="text-xl font-black">0</h4></div>
-                        <div class="bg-gray-100 p-3 rounded-xl"><p class="text-[9px] font-bold text-gray-600 uppercase">Meninggal</p><h4 id="mu-mati" class="text-xl font-black">0</h4></div>
-                        <div class="bg-orange-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-orange-600 uppercase">Pindah</p><h4 id="mu-pindah" class="text-xl font-black">0</h4></div>
+            <!-- MODULE: DASHBOARD -->
+            <section id="mod-dashboard" class="module-section active">
+                <div class="grid-stats">
+                    <div class="card-stat pemasukan">
+                        <div class="stat-label">Pemasukan Hari Ini</div>
+                        <div class="stat-value text-success" id="stat-masuk-hari-ini">Rp 0</div>
+                    </div>
+                    <div class="card-stat pengeluaran">
+                        <div class="stat-label">Pengeluaran Hari Ini</div>
+                        <div class="stat-value text-danger" id="stat-keluar-hari-ini">Rp 0</div>
+                    </div>
+                    <div class="card-stat lababerisih">
+                        <div class="stat-label">Total Keuangan Aktif (Kas)</div>
+                        <div class="stat-value" id="stat-laba-bersih" style="color: var(--primary)">Rp 0</div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
-                    <h2 class="text-blue-800 font-black text-xs uppercase mb-4 tracking-widest border-b pb-2"> Rincian Pendidikan & Pekerjaan</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div><p class="label-text text-blue-600 mb-3">Tingkat Pendidikan</p><div id="stat-list-pendidikan" class="space-y-1"></div></div>
-                        <div><p class="label-text text-emerald-600 mb-3">Jenis Pekerjaan</p><div id="stat-list-pekerjaan" class="space-y-1"></div></div>
+                <div class="grid-charts">
+                    <div class="card-chart">
+                        <h3 style="margin-bottom:1rem;">Arus Kas Bulanan</h3>
+                        <div style="position: relative; height:300px; width:100%;">
+                            <canvas id="chartArusKas"></canvas>
+                        </div>
+                    </div>
+                    <div class="card-chart">
+                        <h3 style="margin-bottom:1rem;">Proporsi Pendapatan Unit</h3>
+                        <div style="position: relative; height:300px; width:100%;">
+                            <canvas id="chartProporsiUnit"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE: PEMASUKAN -->
+            <section id="mod-pemasukan" class="module-section">
+                <!-- Dropdown Filter Bulan Kerja Bawaan -->
+                <div class="section-header no-print">
+                    <div class="section-title">Pencatatan Pemasukan Kas</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label style="font-weight:600;">Periode Aktif:</label>
+                        <input type="month" id="filter-pemasukan-bulan" class="form-control" style="width:180px;" onchange="loadTables()">
+                    </div>
+                </div>
+                
+                <!-- Form Input -->
+                <div class="form-grid no-print" id="form-pemasukan-container">
+                    <div class="form-group">
+                        <label>Tanggal Transaksi</label>
+                        <input type="date" id="in-masuk-tanggal" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Usaha</label>
+                        <select id="in-masuk-unit" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan Transaksi</label>
+                        <input type="text" id="in-masuk-keterangan" class="form-control" placeholder="Contoh: Penjualan produk ritel">
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal Pemasukan (Rp)</label>
+                        <input type="number" id="in-masuk-nominal" class="form-control" placeholder="0">
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <button class="btn" onclick="simpanTransaksiPemasukan()">Simpan Transaksi</button>
                     </div>
                 </div>
 
-                <button onclick="openForm()" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black shadow-xl uppercase text-sm">+ Tambah Warga Baru</button>
-            </div>
-
-            <div id="tab-penduduk" class="tab-content hidden">
-                <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 grid grid-cols-2 gap-3">
-                    <div class="col-span-2"><label class="label-text">Pencarian</label><input type="text" id="cari" placeholder="Nama / NIK..." onkeyup="render()"></div>
-                    <div><label class="label-text">RT</label><input type="text" id="filter-rt" placeholder="RT" onkeyup="render()"></div>
-                    <div><label class="label-text">RW</label><input type="text" id="filter-rw" placeholder="RW" onkeyup="render()"></div>
+                <!-- Table Data -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No Transaksi</th>
+                                <th>Tanggal</th>
+                                <th>Unit Usaha</th>
+                                <th>Keterangan</th>
+                                <th class="text-right">Nominal</th>
+                                <th>Petugas</th>
+                                <th class="no-print">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-pemasukan-body"></tbody>
+                    </table>
                 </div>
-                <div id="list-kk"></div>
-            </div>
+            </section>
 
-            <div id="tab-pengaturan" class="tab-content hidden">
-                <div class="bg-white p-6 rounded-2xl border mb-6 shadow-sm">
-                    <h2 class="font-black mb-4 text-blue-900 uppercase text-xs">Identitas Wilayah</h2>
-                    <div class="space-y-3">
-                        <input type="text" id="set-dusun" placeholder="Dusun">
-                        <input type="text" id="set-desa" placeholder="Desa">
-                        <input type="text" id="set-kec" placeholder="Kecamatan">
-                        <input type="text" id="set-kab" placeholder="Kabupaten">
-                        <input type="text" id="set-prov" placeholder="Provinsi">
-                        <input type="text" id="set-pass" placeholder="Password Admin">
-                        <button onclick="saveSettings()" class="w-full bg-blue-800 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Simpan Identitas</button>
+            <!-- MODULE: PENGELUARAN -->
+            <section id="mod-pengeluaran" class="module-section">
+                <div class="section-header no-print">
+                    <div class="section-title">Pencatatan Pengeluaran Beban</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label style="font-weight:600;">Periode Aktif:</label>
+                        <input type="month" id="filter-pengeluaran-bulan" class="form-control" style="width:180px;" onchange="loadTables()">
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border mb-6 shadow-sm">
-                    <h2 class="font-black mb-4 text-green-700 uppercase text-xs">Database Excel</h2>
-                    <input type="file" id="import-excel" accept=".xlsx, .xls" class="mb-3 text-xs">
-                    <button onclick="importData()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold mb-2 uppercase text-xs">Import Excel</button>
-                    <button onclick="exportExcel()" class="w-full bg-slate-700 text-white py-3 rounded-xl font-bold mb-2 uppercase text-xs">Export Semua Data</button>
-                    <button onclick="resetDB()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold uppercase text-xs">Reset Data</button>
+                
+                <!-- Form Input -->
+                <div class="form-grid no-print" id="form-pengeluaran-container">
+                    <div class="form-group">
+                        <label>Tanggal Transaksi</label>
+                        <input type="date" id="in-keluar-tanggal" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori Pengeluaran</label>
+                        <select id="in-keluar-kategori" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan Pengeluaran</label>
+                        <input type="text" id="in-keluar-keterangan" class="form-control" placeholder="Contoh: Pembayaran listrik bulanan">
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal Pengeluaran (Rp)</label>
+                        <input type="number" id="in-keluar-nominal" class="form-control" placeholder="0">
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <button class="btn" style="background-color:var(--danger);" onclick="simpanTransaksiPengeluaran()">Simpan Pengeluaran</button>
+                    </div>
                 </div>
-            </div>
-        </main>
 
-        <div id="modal-form" class="modal">
-            <div class="bg-white w-full max-w-5xl rounded-[2.5rem] overflow-hidden my-4 shadow-2xl">
-                <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
-                    <h2 id="modal-title" class="font-black uppercase text-xs tracking-widest">Entri Data Penduduk</h2>
-                    <button onclick="closeForm()" class="text-3xl">&times;</button>
+                <!-- Table Data -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No Transaksi</th>
+                                <th>Tanggal</th>
+                                <th>Kategori Pengeluaran</th>
+                                <th>Keterangan</th>
+                                <th class="text-right">Nominal</th>
+                                <th>Petugas</th>
+                                <th class="no-print">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-pengeluaran-body"></tbody>
+                    </table>
                 </div>
-                <form id="form-data" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="hidden" name="id" id="form-id">
-                    <div class="md:col-span-3 border-b font-black text-[10px] text-blue-700 uppercase">I. Data Kartu Keluarga</div>
-                    <input type="text" name="noKK" placeholder="No. KK" required>
-                    <input type="text" name="namaKepala" placeholder="Kepala Keluarga" required>
-                    <input type="text" name="alamat" placeholder="Alamat">
-                    <input type="text" name="rt" placeholder="RT" required>
-                    <input type="text" name="rw" placeholder="RW" required>
+            </section>
+
+            <!-- MODULE: LAPORAN -->
+            <section id="mod-laporan" class="module-section">
+                <div class="section-header no-print" style="background-color: var(--bg-card); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <select id="filter-jenis-laporan" class="form-control" style="width:200px;" onchange="generateLaporan()">
+                            <option value="labarugi">Laporan Laba Rugi (Coretax Style)</option>
+                            <option value="neraca">Laporan Neraca Standar</option>
+                            <option value="aruskas">Laporan Arus Kas</option>
+                        </select>
+                        <input type="month" id="filter-laporan-bulan" class="form-control" style="width:170px;" onchange="generateLaporan()">
+                    </div>
                     
-                    <div class="md:col-span-3 border-b font-black text-[10px] text-blue-700 uppercase mt-4">II. Data Pribadi & Status Mutasi</div>
-                    <input type="text" name="nik" placeholder="NIK" required>
-                    <input type="text" name="nama" placeholder="Nama Lengkap" required>
-                    <select name="jk"><option value="L">Laki-Laki</option><option value="P">Perempuan</option></select>
-                    <input type="text" name="tempatLahir" placeholder="Tempat Lahir">
-                    <input type="date" name="tglLahir">
-                    <select name="status">
-                        <option value="HIDUP">STATUS: HIDUP (AKTIF)</option>
-                        <option value="LAHIR">STATUS: LAHIR (AKTIF)</option>
-                        <option value="MENINGGAL">STATUS: MENINGGAL (ARSIP)</option>
-                        <option value="PINDAH">STATUS: PINDAH (ARSIP)</option>
-                    </select>
-                    <input type="text" name="pendidikan" placeholder="Pendidikan">
-                    <input type="text" name="pekerjaan" placeholder="Pekerjaan">
-                    <input type="text" name="hubungan" placeholder="Hubungan">
-                    <input type="text" name="ayah" placeholder="Ayah">
-                    <input type="text" name="ibu" placeholder="Ibu">
-                    <input type="hidden" name="tglUpdate" id="tglUpdate">
-                    <button type="submit" id="btn-submit" class="md:col-span-3 bg-blue-700 text-white py-5 rounded-2xl font-black uppercase shadow-lg">Simpan Data</button>
-                </form>
-            </div>
-        </div>
+                    <div style="display:flex; gap:10px;">
+                        <!-- Tombol Tutup Buku Bulanan Kontemporer -->
+                        <button class="btn" id="btn-tutup-buku" style="background-color: var(--warning); color:white; width:auto;" onclick="eksekusiTutupBukuManual()">üîí Tutup Buku Bulan Ini</button>
+                        <button class="btn" style="background-color:#475569; width:auto;" onclick="window.print()">üñ®Ô∏è Cetak</button>
+                    </div>
+                </div>
+
+                <!-- REPORT VIEW PAPER AREA -->
+                <div class="report-paper" id="report-print-area">
+                    <div class="report-kop">
+                        <img id="logo-preview-laporan" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 2v20M2 12h20'/></svg>" alt="Logo BUMDes">
+                        <div class="report-kop-text">
+                            <h1 id="rep-nama-bumdes">BUMDes Tampingan</h1>
+                            <p id="rep-alamat-bumdes">Alamat Lengkap BUMDes, No. HP, Email</p>
+                        </div>
+                    </div>
+
+                    <div class="report-title-container">
+                        <h2 id="rep-judul-jenis">LAPORAN LABA RUGI</h2>
+                        <p id="rep-judul-periode">Periode</p>
+                    </div>
+
+                    <!-- Tempat Tabel Dinamis -->
+                    <div id="report-dynamic-table-content"></div>
+
+                    <!-- Tanda Tangan -->
+                    <div class="report-signatures">
+                        <div class="sig-block"><p id="role-pj-1">Direktur Utama</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-1"></p></div>
+                        <div class="sig-block"><p id="role-pj-2">Sekretaris</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-2"></p></div>
+                        <div class="sig-block"><p id="role-pj-3">Pengawas</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-3"></p></div>
+                        <div class="sig-block"><p id="role-pj-4">Penasehat</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-4"></p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE: PENGATURAN -->
+            <section id="mod-pengaturan" class="module-section">
+                <div class="section-header">
+                    <div class="section-title">Konfigurasi Profil & Manajerial Sistem</div>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                    <!-- Profil BUMDes & Saldo Awal Murni -->
+                    <div class="form-grid" style="grid-template-columns:1fr; height:fit-content;">
+                        <h3>Profil Instansi & Jangkar Keuangan</h3>
+                        
+                        <!-- INPUT SALDO AWAL UTAMA GLOBAL -->
+                        <div class="form-group" style="background-color: #f0fdf4; padding: 10px; border-radius: 8px; border: 1px dashed var(--success);">
+                            <label style="color:var(--success); font-weight:700;">SALDO AWAL APLIKASI UTAMA (Murni)</label>
+                            <input type="number" id="cfg-saldo-awal-global" class="form-control" placeholder="0" style="border-color:var(--success)">
+                            <small style="color:var(--text-muted); display:block; margin-top:5px;">Isi entri pertama kali aplikasi ini digunakan sebagai fondasi kas permanen.</small>
+                        </div>
+
+                        <div class="form-group"><label>Nama BUMDes</label><input type="text" id="cfg-nama-bumdes" class="form-control"></div>
+                        <div class="form-group"><label>Alamat Lengkap</label><textarea id="cfg-alamat-bumdes" class="form-control" rows="2"></textarea></div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>Nomor Telepon</label><input type="text" id="cfg-telp-bumdes" class="form-control"></div>
+                            <div class="form-group"><label>Email Resmi</label><input type="email" id="cfg-email-bumdes" class="form-control"></div>
+                        </div>
+                        <div class="form-group"><label>Logo Gambar (URL/Base64)</label><input type="text" id="cfg-logo-bumdes" class="form-control" onchange="simpanLogoBumdes(this.value)"></div>
+                        <button class="btn" onclick="simpanPengaturanProfil()">Simpan Profil & Saldo Awal</button>
+                    </div>
+
+                    <!-- Pengaturan Struktur Pejabat -->
+                    <div class="form-grid" style="grid-template-columns:1fr; height:fit-content;">
+                        <h3>Struktur Penandatangan Laporan</h3>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>Jabatan 1</label><input type="text" id="cfg-role-1" class="form-control"></div>
+                            <div class="form-group"><label>Nama Pejabat 1</label><input type="text" id="cfg-nama-1" class="form-control"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>Jabatan 2</label><input type="text" id="cfg-role-2" class="form-control"></div>
+                            <div class="form-group"><label>Nama Pejabat 2</label><input type="text" id="cfg-nama-2" class="form-control"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>Jabatan 3</label><input type="text" id="cfg-role-3" class="form-control"></div>
+                            <div class="form-group"><label>Nama Pejabat 3</label><input type="text" id="cfg-nama-3" class="form-control"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>Jabatan 4</label><input type="text" id="cfg-role-4" class="form-control"></div>
+                            <div class="form-group"><label>Nama Pejabat 4</label><input type="text" id="cfg-nama-4" class="form-control"></div>
+                        </div>
+                        <button class="btn" onclick="simpanPengaturanTtd()">Simpan Struktur Manajemen</button>
+                    </div>
+                </div>
+
+                <!-- Kelola Kategori/Unit -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:2rem;">
+                    <div class="table-container" style="padding:1rem;">
+                        <h3 style="margin-bottom:1rem;">Kelola Unit Usaha</h3>
+                        <div style="display:flex; gap:5px; margin-bottom:1rem;"><input type="text" id="cfg-new-unit" class="form-control" placeholder="Nama Unit Baru"><button class="btn" style="width:auto;" onclick="tambahUnitUsaha()">Tambah</button></div>
+                        <ul id="list-unit-usaha" style="list-style:none;"></ul>
+                    </div>
+                    <div class="table-container" style="padding:1rem;">
+                        <h3 style="margin-bottom:1rem;">Kelola Kategori Pengeluaran</h3>
+                        <div style="display:flex; gap:5px; margin-bottom:1rem;"><input type="text" id="cfg-new-kategori" class="form-control" placeholder="Kategori Baru"><button class="btn" style="width:auto; background-color:var(--danger);" onclick="tambahKategoriKeluar()">Tambah</button></div>
+                        <ul id="list-kategori-pengeluaran" style="list-style:none;"></ul>
+                    </div>
+                </div>
+
+                <!-- API GAS Backend Connection -->
+                <div class="form-grid" style="grid-template-columns: 1fr; margin-top: 2rem;">
+                    <h3>Integrasi API Google Apps Script Backend</h3>
+                    <div class="form-group">
+                        <label>Google Apps Script Web App URL</label>
+                        <input type="text" id="cfg-gas-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+                    </div>
+                    <button class="btn" style="background-color:#475569;" onclick="saveGasUrl()">Simpan Konfigurasi Jaringan API</button>
+                </div>
+            </section>
+        </main>
     </div>
 
+    <!-- BUSINESS LOGIC ENGINE DEVELOPMENT -->
     <script>
-        let db = JSON.parse(localStorage.getItem('segono_db')) || [];
-        let config = JSON.parse(localStorage.getItem('segono_cfg')) || { pass: "1234", dusun: "Segono", desa: "Segono", kec: "-", kab: "-", prov: "-" };
-
-        function handleLogin() {
-            if(document.getElementById('input-pass').value === config.pass) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-content').classList.remove('hidden');
-                init();
-            } else { Swal.fire('Error', 'Password Salah!', 'error'); }
-        }
-
-        function init() {
-            document.getElementById('set-pass').value = config.pass;
-            document.getElementById('set-dusun').value = config.dusun;
-            document.getElementById('set-desa').value = config.desa;
-            document.getElementById('set-kec').value = config.kec;
-            document.getElementById('set-kab').value = config.kab;
-            document.getElementById('set-prov').value = config.prov;
-            refreshUI(); render();
-        }
-
-        function saveSettings() {
-            config = {
-                pass: document.getElementById('set-pass').value,
-                dusun: document.getElementById('set-dusun').value,
-                desa: document.getElementById('set-desa').value,
-                kec: document.getElementById('set-kec').value,
-                kab: document.getElementById('set-kab').value,
-                prov: document.getElementById('set-prov').value
-            };
-            localStorage.setItem('segono_cfg', JSON.stringify(config));
-            refreshUI(); Swal.fire('Berhasil', 'Pengaturan Disimpan', 'success');
-        }
-
-        function refreshUI() {
-            document.getElementById('head-dusun').innerText = "Dusun " + config.dusun;
-            document.getElementById('head-alamat').innerText = `Desa ${config.desa}, Kec. ${config.kec}, Kab. ${config.kab}, Prov. ${config.prov}`;
-        }
-
-        function importData() {
-            const f = document.getElementById('import-excel').files[0];
-            if(!f) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                const now = new Date().toISOString().split('T')[0];
-                db = [...db, ...json.map(x => ({
-                    ...x, 
-                    id: x.id || Date.now() + Math.random(), 
-                    status: (x.status || 'HIDUP').toUpperCase(),
-                    tglUpdate: x.tglUpdate || now
-                }))];
-                localStorage.setItem('segono_db', JSON.stringify(db));
-                render(); Swal.fire('Import Berhasil!', '', 'success');
-            };
-            reader.readAsArrayBuffer(f);
-        }
-
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-                btn.classList.add('active');
-                document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
-                render();
-            });
-        });
-
-        function openForm() { 
-            document.getElementById('modal-title').innerText = "Entri Data Penduduk";
-            document.getElementById('form-id').value = "";
-            document.getElementById('btn-submit').innerText = "SIMPAN WARGA BARU";
-            document.getElementById('modal-form').classList.add('active'); 
-        }
-
-        function closeForm() { 
-            document.getElementById('modal-form').classList.remove('active'); 
-            document.getElementById('form-data').reset(); 
-        }
-
-        function editWarga(id) {
-            const data = db.find(x => x.id == id);
-            if(data) {
-                const form = document.getElementById('form-data');
-                for (let key in data) {
-                    if(form.elements[key]) form.elements[key].value = data[key];
-                }
-                document.getElementById('modal-title').innerText = "Edit Data: " + data.nama;
-                document.getElementById('btn-submit').innerText = "SIMPAN PERUBAHAN";
-                document.getElementById('modal-form').classList.add('active');
-            }
-        }
-
-        document.getElementById('form-data').onsubmit = function(e) {
-            e.preventDefault();
-            const formData = Object.fromEntries(new FormData(e.target));
-            const now = new Date().toISOString().split('T')[0];
-            
-            if(formData.id) {
-                // Proses Update
-                const idx = db.findIndex(x => x.id == formData.id);
-                db[idx] = {...db[idx], ...formData, tglUpdate: now};
-            } else {
-                // Proses Baru
-                formData.id = Date.now();
-                formData.tglUpdate = now;
-                db.push(formData);
-            }
-            
-            localStorage.setItem('segono_db', JSON.stringify(db));
-            render(); closeForm(); 
-            Swal.fire('Berhasil!', 'Data telah diperbarui.', 'success');
+        // CORE STATE DATA STORE
+        let state = {
+            pemasukan: JSON.parse(localStorage.getItem('bumdes_pemasukan')) || [],
+            pengeluaran: JSON.parse(localStorage.getItem('bumdes_pengeluaran')) || [],
+            unitUsaha: JSON.parse(localStorage.getItem('bumdes_units')) || ["Simpan Pinjam", "Penyewaan", "Wisata Desa", "Unit Dagang"],
+            kategoriKeluar: JSON.parse(localStorage.getItem('bumdes_kategoris')) || ["Gaji", "Operasional", "ATK", "Perawatan"],
+            profil: JSON.parse(localStorage.getItem('bumdes_profil')) || {
+                nama: "BUMDes Tampingan",
+                alamat: "Jl. Raya Tampingan No. 45, Kecamatan Boja, Kabupaten Kendal",
+                telp: "0812-3456-7890",
+                email: "info@bumdestampingan.id",
+                logo: "",
+                saldoAwalMurni: 0 // Saldo awal murni isian di menu setting
+            },
+            ttd: JSON.parse(localStorage.getItem('bumdes_ttd')) || {
+                role1: "Direktur Utama", nama1: "Dhian Widhi A",
+                role2: "Sekretaris", nama2: "Siti Rahmawati",
+                role3: "Pengawas Internal", nama3: "Bp. Kahono",
+                role4: "Penasehat Kepala Desa", nama4: "Kepala Desa Tampingan"
+            },
+            historyTutupBuku: JSON.parse(localStorage.getItem('bumdes_closed_months')) || {}, // Menyimpan state tutup buku bulan lalu beserta akumulasi saldonya
+            gasUrl: localStorage.getItem('bumdes_gas_url') || ""
         };
 
-        function render() {
-            const q = document.getElementById('cari').value.toLowerCase();
-            const rt = document.getElementById('filter-rt').value;
-            const rw = document.getElementById('filter-rw').value;
-            const curMonth = new Date().toISOString().split('-').slice(0,2).join('-');
+        let currentUser = null;
+        let chart1 = null;
+        let chart2 = null;
 
-            const aktif = db.filter(x => x.status === 'HIDUP' || x.status === 'LAHIR');
-            document.getElementById('st-total').innerText = aktif.length;
-            document.getElementById('st-laki').innerText = aktif.filter(x => x.jk === 'L').length;
-            document.getElementById('st-perempuan').innerText = aktif.filter(x => x.jk === 'P').length;
+        window.onload = function() {
+            // Set input bulan harian default ke bulan ini (Format: YYYY-MM)
+            const currentMonthStr = new Date().toISOString().slice(0, 7); 
+            document.getElementById('filter-pemasukan-bulan').value = currentMonthStr;
+            document.getElementById('filter-pengeluaran-bulan').value = currentMonthStr;
+            document.getElementById('filter-laporan-bulan').value = currentMonthStr;
 
-            const mutasiBulanIni = db.filter(x => (x.tglUpdate || "").startsWith(curMonth));
-            document.getElementById('mu-lahir').innerText = mutasiBulanIni.filter(x => x.status === 'LAHIR').length;
-            document.getElementById('mu-mati').innerText = mutasiBulanIni.filter(x => x.status === 'MENINGGAL').length;
-            document.getElementById('mu-pindah').innerText = mutasiBulanIni.filter(x => x.status === 'PINDAH').length;
+            muatLogoSaatMulai();
+            initApp();
+            document.getElementById('current-date-time').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        };
 
-            const eduStat = {}; const jobStat = {};
-            aktif.forEach(x => {
-                let edu = (x.pendidikan || "TIDAK SEKOLAH").toUpperCase();
-                let job = (x.pekerjaan || "TIDAK BEKERJA").toUpperCase();
-                eduStat[edu] = (eduStat[edu] || 0) + 1;
-                jobStat[job] = (jobStat[job] || 0) + 1;
-            });
-            document.getElementById('stat-list-pendidikan').innerHTML = Object.keys(eduStat).map(k => `<div class="list-item-stat"><span>${k}</span><span class="font-black">${eduStat[k]}</span></div>`).join('');
-            document.getElementById('stat-list-pekerjaan').innerHTML = Object.keys(jobStat).map(k => `<div class="list-item-stat"><span>${k}</span><span class="font-black text-emerald-600">${jobStat[k]}</span></div>`).join('');
+        function saveStateToLocal() {
+            localStorage.setItem('bumdes_pemasukan', JSON.stringify(state.pemasukan));
+            localStorage.setItem('bumdes_pengeluaran', JSON.stringify(state.pengeluaran));
+            localStorage.setItem('bumdes_units', JSON.stringify(state.unitUsaha));
+            localStorage.setItem('bumdes_kategoris', JSON.stringify(state.kategoriKeluar));
+            localStorage.setItem('bumdes_profil', JSON.stringify(state.profil));
+            localStorage.setItem('bumdes_ttd', JSON.stringify(state.ttd));
+            localStorage.setItem('bumdes_closed_months', JSON.stringify(state.historyTutupBuku));
+        }
 
-            const filtered = aktif.filter(x => {
-                const matchQ = (x.nama||"").toLowerCase().includes(q) || (x.nik||"").includes(q);
-                const matchRT = rt ? x.rt == rt : true;
-                const matchRW = rw ? x.rw == rw : true;
-                return matchQ && matchRT && matchRW;
-            });
+        function initApp() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if(document.getElementById('in-masuk-tanggal')) document.getElementById('in-masuk-tanggal').value = todayStr;
+            if(document.getElementById('in-keluar-tanggal')) document.getElementById('in-keluar-tanggal').value = todayStr;
+            
+            loadSelectOptions();
+            loadTables();
+            loadPengaturanForm();
+            updateDashboardMetrics();
+        }
 
-            const groups = {};
-            filtered.forEach(p => { if(!groups[p.noKK]) groups[p.noKK] = []; groups[p.noKK].push(p); });
-            document.getElementById('st-kk').innerText = Object.keys(groups).length;
+        // Authentication Logics
+        function handleLogin() {
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
+            const err = document.getElementById('login-error');
 
-            const list = document.getElementById('list-kk');
-            list.innerHTML = '';
-            for(let kk in groups) {
-                const h = groups[kk][0];
-                list.innerHTML += `
-                    <div class="kk-box">
-                        <div class="bg-blue-50 p-4 border-b text-[10px] font-black uppercase flex justify-between items-center">
-                            <span> ${h.namaKepala} (RT ${h.rt}/RW ${h.rw})</span>
-                            <button onclick="ubahStatusKK('${kk}')" class="text-blue-500 bg-white px-2 py-1 rounded border border-blue-200 text-[8px]">MUTASI 1 KK</button>
-                        </div>
-                        <div class="p-1">${groups[kk].map(m => `<div class="p-3 border-b text-[10px] flex justify-between items-center">
-                            <span class="flex-1"><b>${m.nama}</b> (${m.hubungan})</span> 
-                            <div class="flex gap-4">
-                                <button onclick="editWarga('${m.id}')" class="text-blue-500 font-bold"> Edit</button>
-                                <button onclick="ubahStatusIndividu('${m.id}')" class="text-gray-400"> Mutasi</button>
-                            </div>
-                        </div>`).join('')}</div>
-                    </div>`;
+            if((u === "admin" && p === "admin123") || (u === "operator" && p === "op123") || (u === "viewer" && p === "view123")) {
+                currentUser = {
+                    username: u,
+                    role: u === "admin" ? "Admin" : (u === "operator" ? "Operator" : "Viewer"),
+                    nama: u === "admin" ? state.ttd.nama1 : (u === "operator" ? "Petugas Lapangan" : "Otoritas Pemeriksa")
+                };
+                
+                document.getElementById('user-display-name').innerText = currentUser.nama;
+                document.getElementById('user-display-role').innerText = currentUser.role;
+                
+                if(currentUser.role === "Viewer") {
+                    document.getElementById('form-pemasukan-container').style.display = 'none';
+                    document.getElementById('form-pengeluaran-container').style.display = 'none';
+                    document.getElementById('menu-pengaturan').style.display = 'none';
+                } else if(currentUser.role === "Operator") {
+                    document.getElementById('menu-pengaturan').style.display = 'none';
+                }
+
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'flex';
+                
+                setTimeout(renderCharts, 200);
+            } else {
+                err.innerText = "Kombinasi kredensial login salah.";
             }
         }
 
-        async function ubahStatusIndividu(id) {
-            const { value: status } = await Swal.fire({
-                title: 'Ubah Status Warga',
-                input: 'select',
-                inputOptions: { 'HIDUP': 'Hidup', 'MENINGGAL': 'Meninggal', 'PINDAH': 'Pindah' },
-                showCancelButton: true
-            });
-            if (status) {
-                const idx = db.findIndex(x => x.id == id);
-                db[idx].status = status;
-                db[idx].tglUpdate = new Date().toISOString().split('T')[0];
-                localStorage.setItem('segono_db', JSON.stringify(db));
-                render();
-                Swal.fire('Terarsip', 'Status berhasil diperbarui', 'success');
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('app-screen').style.display = 'none';
+        }
+
+        function switchModule(modName, element) {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.module-section').forEach(s => s.classList.remove('active'));
+            
+            element.classList.add('active');
+            document.getElementById(`mod-${modName}`).classList.add('active');
+            document.getElementById('topbar-title').innerText = element.innerText;
+
+            if(modName === 'dashboard') {
+                updateDashboardMetrics();
+                renderCharts();
+            } else if(modName === 'laporan') {
+                generateLaporan();
             }
         }
 
-        async function ubahStatusKK(noKK) {
-            const { value: status } = await Swal.fire({
-                title: 'Mutasi Satu Keluarga',
-                input: 'select',
-                inputOptions: { 'PINDAH': 'Pindah Domisili', 'MENINGGAL': 'Meninggal (Seluruhnya)' },
-                showCancelButton: true
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        function loadSelectOptions() {
+            document.getElementById('in-masuk-unit').innerHTML = state.unitUsaha.map(u => `<option value="${u}">${u}</option>`).join('');
+            document.getElementById('in-keluar-kategori').innerHTML = state.kategoriKeluar.map(k => `<option value="${k}">${k}</option>`).join('');
+        }
+
+        function formatRupiah(val) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+        }
+
+        // =========================================================================
+        // LOGIKA PENYEMPURNAAN FILTER BULAN DAN AMBIL DATA HISTORIS
+        // =========================================================================
+        function loadTables() {
+            const filterBulanMasuk = document.getElementById('filter-pemasukan-bulan').value; // format: YYYY-MM
+            const filterBulanKeluar = document.getElementById('filter-pengeluaran-bulan').value;
+
+            // Filter data yang ditampilkan hanya untuk bulan yang dipilih di UI
+            let dataMasukFiltered = state.pemasukan.filter(m => m.tanggal.startsWith(filterBulanMasuk));
+            let dataKeluarFiltered = state.pengeluaran.filter(k => k.tanggal.startsWith(filterBulanKeluar));
+
+            const tMasuk = document.getElementById('table-pemasukan-body');
+            if(dataMasukFiltered.length === 0) {
+                tMasuk.innerHTML = `<tr><td colspan="7" class="text-center" style="color:var(--text-muted)">Tidak ada entri data transaksi pada bulan ini.</td></tr>`;
+            } else {
+                tMasuk.innerHTML = dataMasukFiltered.map(m => `
+                    <tr>
+                        <td>${m.id}</td>
+                        <td>${m.tanggal}</td>
+                        <td><span class="font-bold">${m.unit}</span></td>
+                        <td>${m.keterangan}</td>
+                        <td class="text-right font-bold text-success">${formatRupiah(m.nominal)}</td>
+                        <td>${m.petugas}</td>
+                        <td class="no-print">
+                            <button class="btn-action btn-delete" ${currentUser && currentUser.role==='Viewer'?'disabled':''} onclick="hapusTransaksi('pemasukan', '${m.id}')">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const tKeluar = document.getElementById('table-pengeluaran-body');
+            if(dataKeluarFiltered.length === 0) {
+                tKeluar.innerHTML = `<tr><td colspan="7" class="text-center" style="color:var(--text-muted)">Tidak ada entri data transaksi pada bulan ini.</td></tr>`;
+            } else {
+                tKeluar.innerHTML = dataKeluarFiltered.map(k => `
+                    <tr>
+                        <td>${k.id}</td>
+                        <td>${k.tanggal}</td>
+                        <td><span class="font-bold">${k.kategori}</span></td>
+                        <td>${k.keterangan}</td>
+                        <td class="text-right font-bold text-danger">${formatRupiah(k.nominal)}</td>
+                        <td>${k.petugas}</td>
+                        <td class="no-print">
+                            <button class="btn-action btn-delete" ${currentUser && currentUser.role==='Viewer'?'disabled':''} onclick="hapusTransaksi('pengeluaran', '${k.id}')">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // TAMBAH DATA PEMASUKAN
+        async function simpanTransaksiPemasukan() {
+            const tgl = document.getElementById('in-masuk-tanggal').value;
+            const unit = document.getElementById('in-masuk-unit').value;
+            const ket = document.getElementById('in-masuk-keterangan').value;
+            const nom = parseFloat(document.getElementById('in-masuk-nominal').value);
+
+            if(!tgl || !ket || isNaN(nom)) return alert("Lengkapi data formulir!");
+
+            // Proteksi Skenario: Periksa apakah bulan dari nota transaksi yang dimasukkan statusnya sudah Tutup Buku
+            const targetBulan = tgl.slice(0, 7);
+            if(state.historyTutupBuku[targetBulan] && state.historyTutupBuku[targetBulan].isClosed) {
+                alert(`Transaksi Ditolak! Periode Buku Bulanan [${targetBulan}] telah dikunci dan ditutup oleh Manajemen.`);
+                return;
+            }
+
+            const newTrx = {
+                id: "TRX-M" + new Date().getTime().toString().slice(-5),
+                tanggal: tgl,
+                unit: unit,
+                keterangan: ket,
+                nominal: nom,
+                petugas: currentUser ? currentUser.nama : "System"
+            };
+
+            state.pemasukan.unshift(newTrx);
+            saveStateToLocal();
+            
+            // Otomatis ubah filter view ke bulan sesuai tanggal nota agar user langsung melihat hasilnya
+            document.getElementById('filter-pemasukan-bulan').value = targetBulan;
+            loadTables();
+            updateDashboardMetrics();
+            
+            if(state.gasUrl) await syncToGasBackend('addPemasukan', newTrx);
+
+            document.getElementById('in-masuk-keterangan').value = "";
+            document.getElementById('in-masuk-nominal').value = "";
+        }
+
+        // TAMBAH DATA PENGELUARAN
+        async function simpanTransaksiPengeluaran() {
+            const tgl = document.getElementById('in-keluar-tanggal').value;
+            const kat = document.getElementById('in-keluar-kategori').value;
+            const ket = document.getElementById('in-keluar-keterangan').value;
+            const nom = parseFloat(document.getElementById('in-keluar-nominal').value);
+
+            if(!tgl || !ket || isNaN(nom)) return alert("Lengkapi data formulir!");
+
+            // Proteksi Tutup Buku
+            const targetBulan = tgl.slice(0, 7);
+            if(state.historyTutupBuku[targetBulan] && state.historyTutupBuku[targetBulan].isClosed) {
+                alert(`Transaksi Ditolak! Periode Buku Bulanan [${targetBulan}] telah dikunci dan ditutup oleh Manajemen.`);
+                return;
+            }
+
+            const newTrx = {
+                id: "TRX-K" + new Date().getTime().toString().slice(-5),
+                tanggal: tgl,
+                kategori: kat,
+                keterangan: ket,
+                nominal: nom,
+                petugas: currentUser ? currentUser.nama : "System"
+            };
+
+            state.pengeluaran.unshift(newTrx);
+            saveStateToLocal();
+            
+            document.getElementById('filter-pengeluaran-bulan').value = targetBulan;
+            loadTables();
+            updateDashboardMetrics();
+
+            if(state.gasUrl) await syncToGasBackend('addPengeluaran', newTrx);
+
+            document.getElementById('in-keluar-keterangan').value = "";
+            document.getElementById('in-keluar-nominal').value = "";
+        }
+
+        function hapusTransaksi(type, id) {
+            // Periksa proteksi tutup buku sebelum hapus
+            const item = state[type].find(x => x.id === id);
+            if(item) {
+                const targetBulan = item.tanggal.slice(0, 7);
+                if(state.historyTutupBuku[targetBulan] && state.historyTutupBuku[targetBulan].isClosed) {
+                    alert("Data tidak bisa dihapus! Periode bulan dari transaksi ini sudah dikunci/tutup buku.");
+                    return;
+                }
+            }
+
+            if(!confirm("Apakah anda yakin ingin menghapus catatan transaksi ini?")) return;
+            state[type] = state[type].filter(item => item.id !== id);
+            saveStateToLocal();
+            loadTables();
+            updateDashboardMetrics();
+        }
+
+        // METRIKS KECEPATAN DASHBOARD KOMULATIF
+        function updateDashboardMetrics() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            let masukHariIni = state.pemasukan.filter(m => m.tanggal === todayStr).reduce((acc, curr) => acc + curr.nominal, 0);
+            let keluarHariIni = state.pengeluaran.filter(k => k.tanggal === todayStr).reduce((acc, curr) => acc + curr.nominal, 0);
+            
+            // Total Keuangan Aktif Kas = Saldo Awal Murni + Seluruh Pemasukan - Seluruh Pengeluaran
+            let totalMasuk = state.pemasukan.reduce((acc, curr) => acc + curr.nominal, 0);
+            let totalKeluar = state.pengeluaran.reduce((acc, curr) => acc + curr.nominal, 0);
+            let kasAktifSaatIni = (parseFloat(state.profil.saldoAwalMurni) || 0) + totalMasuk - totalKeluar;
+
+            document.getElementById('stat-masuk-hari-ini').innerText = formatRupiah(masukHariIni);
+            document.getElementById('stat-keluar-hari-ini').innerText = formatRupiah(keluarHariIni);
+            document.getElementById('stat-laba-bersih').innerText = formatRupiah(kasAktifSaatIni);
+        }
+
+        function renderCharts() {
+            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+            let monthlyIn = Array(12).fill(0);
+            let monthlyOut = Array(12).fill(0);
+
+            state.pemasukan.forEach(m => {
+                let monthIdx = new Date(m.tanggal).getMonth();
+                if(!isNaN(monthIdx)) monthlyIn[monthIdx] += m.nominal;
             });
-            if (status) {
-                db.forEach((x, idx) => {
-                    if(x.noKK === noKK) {
-                        db[idx].status = status;
-                        db[idx].tglUpdate = new Date().toISOString().split('T')[0];
-                    }
+            state.pengeluaran.forEach(k => {
+                let monthIdx = new Date(k.tanggal).getMonth();
+                if(!isNaN(monthIdx)) monthlyOut[monthIdx] += k.nominal;
+            });
+
+            if(chart1) chart1.destroy();
+            chart1 = new Chart(document.getElementById('chartArusKas'), {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'Pemasukan', data: monthlyIn, borderColor: '#10b981', tension: 0.2, fill: false },
+                        { label: 'Pengeluaran', data: monthlyOut, borderColor: '#ef4444', tension: 0.2, fill: false }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            let unitData = {};
+            state.unitUsaha.forEach(u => unitData[u] = 0);
+            state.pemasukan.forEach(m => { if(unitData[m.unit] !== undefined) unitData[m.unit] += m.nominal; });
+
+            if(chart2) chart2.destroy();
+            chart2 = new Chart(document.getElementById('chartProporsiUnit'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(unitData),
+                    datasets: [{
+                        data: Object.values(unitData),
+                        backgroundColor: ['#0d9488', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        // =========================================================================
+        // ENGINE MATEMATIS HITUNG SALDO AWAL BULANAN SECARA OTOMATIS
+        // =========================================================================
+        function hitungSaldoAwalBulanPilihan(bulanPilihanStr) {
+            // Formula: Saldo Awal Murni Pengaturan + Semua Transaksi sebelum Bulan Pilihan
+            let saldoAwalMurni = parseFloat(state.profil.saldoAwalMurni) || 0;
+
+            let pemasukanBulanLalu = state.pemasukan
+                .filter(m => m.tanggal.slice(0, 7) < bulanPilihanStr)
+                .reduce((acc, curr) => acc + curr.nominal, 0);
+
+            let pengeluaranBulanLalu = state.pengeluaran
+                .filter(k => k.tanggal.slice(0, 7) < bulanPilihanStr)
+                .reduce((acc, curr) => acc + curr.nominal, 0);
+
+            return saldoAwalMurni + pemasukanBulanLalu - pengeluaranBulanLalu;
+        }
+
+        // FUNGSIONAL UTAMA GENERATOR LAPORAN (CORETAX & NERACA BULANAN)
+        function generateLaporan() {
+            const jLap = document.getElementById('filter-jenis-laporan').value;
+            const bulanStr = document.getElementById('filter-laporan-bulan').value; // format: YYYY-MM
+            const container = document.getElementById('report-dynamic-table-content');
+            
+            if(!bulanStr) return;
+
+            // Update Header Profil Laporan
+            document.getElementById('rep-nama-bumdes').innerText = state.profil.nama;
+            document.getElementById('rep-alamat-bumdes').innerText = `${state.profil.alamat} | Telp: ${state.profil.telp} | Email: ${state.profil.email}`;
+            
+            // Sediakan visualisasi nama bulan indonesia
+            let dateObj = new Date(bulanStr + "-02");
+            let namaBulanIndo = dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'long' });
+            document.getElementById('rep-judul-periode').innerText = `Periode Akuntansi: ${namaBulanIndo}`;
+
+            // Kondisikan text tombol Tutup Buku berdasarkan status bulan
+            const btnTutup = document.getElementById('btn-tutup-buku');
+            if(state.historyTutupBuku[bulanStr] && state.historyTutupBuku[bulanStr].isClosed) {
+                btnTutup.innerText = `üîì Buka Kunci Buku ${bulanStr}`;
+                btnTutup.style.backgroundColor = "var(--danger)";
+            } else {
+                btnTutup.innerText = `üîí Tutup Buku Periode ${bulanStr}`;
+                btnTutup.style.backgroundColor = "var(--warning)";
+            }
+
+            // Tanda Tangan Komite Management
+            document.getElementById('role-pj-1').innerText = state.ttd.role1; document.getElementById('nama-pj-1').innerText = state.ttd.nama1;
+            document.getElementById('role-pj-2').innerText = state.ttd.role2; document.getElementById('nama-pj-2').innerText = state.ttd.nama2;
+            document.getElementById('role-pj-3').innerText = state.ttd.role3; document.getElementById('nama-pj-3').innerText = state.ttd.nama3;
+            document.getElementById('role-pj-4').innerText = state.ttd.role4; document.getElementById('nama-pj-4').innerText = state.ttd.nama4;
+
+            // Filter transaksi khusus bulan laporan pilihan
+            let filteredPemasukan = state.pemasukan.filter(m => m.tanggal.startsWith(bulanStr));
+            let filteredPengeluaran = state.pengeluaran.filter(k => k.tanggal.startsWith(bulanStr));
+
+            // Ambil nilai Saldo Awal Otomatis Hasil Kalkulasi Akumulasi Bulan Sebelumnya
+            let saldoAwalBulanIni = hitungSaldoAwalBulanPilihan(bulanStr);
+
+            if(jLap === 'labarugi') {
+                document.getElementById('rep-judul-jenis').innerText = "LAPORAN LABA RUGI OPERASIONAL MURNI";
+                
+                let rekapIn = {}; state.unitUsaha.forEach(u => rekapIn[u] = 0);
+                filteredPemasukan.forEach(m => { if(rekapIn[m.unit] !== undefined) rekapIn[m.unit] += m.nominal; });
+
+                let rekapOut = {}; state.kategoriKeluar.forEach(k => rekapOut[k] = 0);
+                filteredPengeluaran.forEach(k => { if(rekapOut[k.kategori] !== undefined) rekapOut[k.kategori] += k.nominal; });
+
+                let totalIn = Object.values(rekapIn).reduce((a,b)=>a+b, 0);
+                let totalOut = Object.values(rekapOut).reduce((a,b)=>a+b, 0);
+                let surplusBersihBulanan = totalIn - totalOut;
+
+                let html = `<table class="report-table">
+                    <thead><tr><th>URAIAN OPERASIONAL BULANAN</th><th class="text-right">NOMINAL (RP)</th></tr></thead>
+                    <tbody>
+                        <tr class="row-category"><td colspan="2">PENDAPATAN REKAPITULASI UNIT USAHA</td></tr>`;
+                for(let unit in rekapIn) {
+                    html += `<tr><td style="padding-left:2rem;">Pendapatan Hasil Unit ${unit}</td><td class="text-right">${formatRupiah(rekapIn[unit])}</td></tr>`;
+                }
+                html += `<tr class="row-total"><td>TOTAL PENDAPATAN OPERASIONAL BULANAN</td><td class="text-right">${formatRupiah(totalIn)}</td></tr>
+                        <tr class="row-category"><td colspan="2">BEBAN OPERASIONAL KELUAR</td></tr>`;
+                for(let kat in rekapOut) {
+                    html += `<tr><td style="padding-left:2rem;">Beban Pengeluaran Biaya ${kat}</td><td class="text-right">${formatRupiah(rekapOut[kat])}</td></tr>`;
+                }
+                html += `<tr class="row-total"><td>TOTAL BEBAN DAN BIAYA BULANAN</td><td class="text-right">${formatRupiah(totalOut)}</td></tr>
+                        <tr class="row-total" style="background-color:#cbd5e1; font-size:1.1rem;"><td>SURPLUS / LABA BERSIH BULANAN (NETTO)</td><td class="text-right ${surplusBersihBulanan>=0?'text-success':'text-danger'}">${formatRupiah(surplusBersihBulanan)}</td></tr>
+                    </tbody></table>`;
+                container.innerHTML = html;
+
+            } else if(jLap === 'neraca') {
+                document.getElementById('rep-judul-jenis').innerText = "LAPORAN NERACA BALANCE BULANAN";
+                
+                let totalInBulanIni = filteredPemasukan.reduce((a,b)=>a+b.nominal, 0);
+                let totalOutBulanIni = filteredPengeluaran.reduce((a,b)=>a+b.nominal, 0);
+                let kasAkhirBulanIni = saldoAwalBulanIni + totalInBulanIni - totalOutBulanIni;
+
+                let html = `<table class="report-table">
+                    <thead><tr><th>KOMPONEN AKUNTANSI NERACA</th><th class="text-right">SALDO AKHIR PERIODE</th></tr></thead>
+                    <tbody>
+                        <tr class="row-category"><td colspan="2">ASET / AKTIVA (Harta)</td></tr>
+                        <!-- Tampilkan Saldo Awal Bulan Ini sebagai informasi pelengkap transparan -->
+                        <tr><td style="padding-left:2rem; color:var(--text-muted); font-style:italic;">Saldo Kas Awal Bulan (Kumulatif Bulan Lalu)</td><td class="text-right style='color:var(--text-muted); font-style:italic;'">${formatRupiah(saldoAwalBulanIni)}</td></tr>
+                        <tr><td style="padding-left:2rem; font-weight:600;">Kas Aktif Hasil Transaksi Berjalan (Bank & Tunai)</td><td class="text-right font-bold">${formatRupiah(kasAkhirBulanIni)}</td></tr>
+                        <tr><td style="padding-left:2rem;">Aset Inventaris Lapangan Tetap</td><td class="text-right">${formatRupiah(150000000)}</td></tr>
+                        <tr class="row-total"><td>TOTAL AKTIVA (HARTA BUMDES)</td><td class="text-right">${formatRupiah(kasAkhirBulanIni + 150000000)}</td></tr>
+                        
+                        <tr class="row-category"><td colspan="2">KEWAJIBAN & CAPITAL MODAL (PASIVA)</td></tr>
+                        <tr><td style="padding-left:2rem;">Kewajiban Pokok Pihak Ketiga</td><td class="text-right">${formatRupiah(0)}</td></tr>
+                        <tr><td style="padding-left:2rem;">Modal Utama Awal Pendirian Desa</td><td class="text-right">${formatRupiah(150000000)}</td></tr>
+                        <tr><td style="padding-left:2rem; font-weight:600;">Sisa Hasil Usaha / Laba Berjalan Akumulatif</td><td class="text-right font-bold">${formatRupiah(kasAkhirBulanIni)}</td></tr>
+                        <tr class="row-total"><td>TOTAL PASIVA (MODAL + UTANG)</td><td class="text-right">${formatRupiah(kasAkhirBulanIni + 150000000)}</td></tr>
+                    </tbody></table>`;
+                container.innerHTML = html;
+
+            } else if(jLap === 'aruskas') {
+                document.getElementById('rep-judul-jenis').innerText = "LAPORAN ARUS KAS MASUK KELUAR BULANAN";
+                
+                let opsIn = filteredPemasukan.reduce((a,b)=>a+b.nominal, 0);
+                let opsOut = filteredPengeluaran.reduce((a,b)=>a+b.nominal, 0);
+                let kenaikanKasNetto = opsIn - opsOut;
+
+                let html = `<table class="report-table">
+                    <thead><tr><th>AKTIVITAS CASH FLOW BULANAN</th><th class="text-right">NILAI NETTO KAS</th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-weight:600;">SALDO KAS AWAL AWAL PERIODE BULAN INI</td><td class="text-right font-bold" style="background-color:#f8fafc;">${formatRupiah(saldoAwalBulanIni)}</td></tr>
+                        <tr class="row-category"><td colspan="2">1. ARUS KAS DARI OPERASIONAL USAHA</td></tr>
+                        <tr><td style="padding-left:2rem;">Total Penerimaan Kas Unit Usaha Berjalan</td><td class="text-right text-success">+ ${formatRupiah(opsIn)}</td></tr>
+                        <tr><td style="padding-left:2rem;">Total Pengeluaran Kas Beban Operasional</td><td class="text-right text-danger">- ${formatRupiah(opsOut)}</td></tr>
+                        
+                        <tr class="row-category"><td colspan="2">2. ARUS KAS INVESTASI & PENDANAAN</td></tr>
+                        <tr><td style="padding-left:2rem;">Alokasi Pembelian Investasi Alat / Penyertaan Modal</td><td class="text-right">${formatRupiah(0)}</td></tr>
+                        
+                        <tr class="row-total"><td>PERUBAHAN/KENAIKAN NETTO KAS BULANAN</td><td class="text-right">${formatRupiah(kenaikanKasNetto)}</td></tr>
+                        <tr class="row-total" style="background-color:#cbd5e1; font-size:1.1rem;"><td>SALDO KAS AKHIR PERIODE BULAN INI</td><td class="text-right">${formatRupiah(saldoAwalBulanIni + kenaikanKasNetto)}</td></tr>
+                    </tbody></table>`;
+                container.innerHTML = html;
+            }
+        }
+
+        // FUNGSI MANAJEMEN TUTUP BUKU MANUAL KENDALI USER
+        function eksekusiTutupBukuManual() {
+            const bulanStr = document.getElementById('filter-laporan-bulan').value;
+            if(!bulanStr) return;
+
+            if(state.historyTutupBuku[bulanStr] && state.historyTutupBuku[bulanStr].isClosed) {
+                // Skenario Buka Kunci jika user ingin melakukan pembenahan data nota terselip
+                if(confirm(`Apakah Anda yakin ingin MEMBUKA KEMBALI KUNCI BUKU periode [${bulanStr}]? Anda dapat mengentri ulang data baru.`)) {
+                    state.historyTutupBuku[bulanStr].isClosed = false;
+                    saveStateToLocal();
+                    generateLaporan();
+                    alert("Kunci buku bulanan berhasil dibuka.");
+                }
+            } else {
+                // Skenario Tutup Buku Mengunci Data
+                if(confirm(`Apakah Anda yakin ingin melakukan PROSES TUTUP BUKU untuk bulan [${bulanStr}]?\n\nSemua data transaksi di bulan ini akan DIKUNCI dan saldo akhir otomatis dialokasikan ke bulan berikutnya.`)) {
+                    
+                    let filteredPemasukan = state.pemasukan.filter(m => m.tanggal.startsWith(bulanStr));
+                    let filteredPengeluaran = state.pengeluaran.filter(k => k.tanggal.startsWith(bulanStr));
+                    let saldoAwalBulanIni = hitungSaldoAwalBulanPilihan(bulanStr);
+                    let totalIn = filteredPemasukan.reduce((a,b)=>a+b.nominal, 0);
+                    let totalOut = filteredPengeluaran.reduce((a,b)=>a+b.nominal, 0);
+                    
+                    let saldoAkhirFix = saldoAwalBulanIni + totalIn - totalOut;
+
+                    state.historyTutupBuku[bulanStr] = {
+                        isClosed: true,
+                        saldoAkhirDitutup: saldoAkhirFix,
+                        tanggalEksekusi: new Date().toISOString()
+                    };
+
+                    saveStateToLocal();
+                    generateLaporan();
+                    alert(`PERIODE [${bulanStr}] BERHASIL DITUTUP!\nSaldo Akhir dikunci pada nilai: ${formatRupiah(saldoAkhirFix)}`);
+                }
+            }
+        }
+
+        function loadPengaturanForm() {
+            document.getElementById('cfg-saldo-awal-global').value = state.profil.saldoAwalMurni || 0;
+            document.getElementById('cfg-nama-bumdes').value = state.profil.nama;
+            document.getElementById('cfg-alamat-bumdes').value = state.profil.alamat;
+            document.getElementById('cfg-telp-bumdes').value = state.profil.telp;
+            document.getElementById('cfg-email-bumdes').value = state.profil.email;
+            document.getElementById('cfg-logo-bumdes').value = state.profil.logo;
+
+            document.getElementById('cfg-role-1').value = state.ttd.role1; document.getElementById('cfg-nama-1').value = state.ttd.nama1;
+            document.getElementById('cfg-role-2').value = state.ttd.role2; document.getElementById('cfg-nama-2').value = state.ttd.nama2;
+            document.getElementById('cfg-role-3').value = state.ttd.role3; document.getElementById('cfg-nama-3').value = state.ttd.nama3;
+            document.getElementById('cfg-role-4').value = state.ttd.role4; document.getElementById('cfg-nama-4').value = state.ttd.nama4;
+            
+            document.getElementById('cfg-gas-url').value = state.gasUrl;
+
+            renderUnitList();
+            renderKategoriList();
+        }
+
+        function simpanPengaturanProfil() {
+            state.profil.saldoAwalMurni = parseFloat(document.getElementById('cfg-saldo-awal-global').value) || 0;
+            state.profil.nama = document.getElementById('cfg-nama-bumdes').value;
+            state.profil.alamat = document.getElementById('cfg-alamat-bumdes').value;
+            state.profil.telp = document.getElementById('cfg-telp-bumdes').value;
+            state.profil.email = document.getElementById('cfg-email-bumdes').value;
+            state.profil.logo = document.getElementById('cfg-logo-bumdes').value;
+            
+            saveStateToLocal();
+            muatLogoSaatMulai();
+            updateDashboardMetrics();
+            alert("Profil Instansi & Saldo Awal Global berhasil disimpan dan diperbarui!");
+        }
+
+        function simpanPengaturanTtd() {
+            state.ttd.role1 = document.getElementById('cfg-role-1').value; state.ttd.nama1 = document.getElementById('cfg-nama-1').value;
+            state.ttd.role2 = document.getElementById('cfg-role-2').value; state.ttd.nama2 = document.getElementById('cfg-nama-2').value;
+            state.ttd.role3 = document.getElementById('cfg-role-3').value; state.ttd.nama3 = document.getElementById('cfg-nama-3').value;
+            state.ttd.role4 = document.getElementById('cfg-role-4').value; state.ttd.nama4 = document.getElementById('cfg-nama-4').value;
+            saveStateToLocal();
+            alert("Struktur Manajemen Penandatangan berhasil diperbarui!");
+        }
+
+        function tambahUnitUsaha() {
+            const val = document.getElementById('cfg-new-unit').value.trim();
+            if(!val) return;
+            state.unitUsaha.push(val); saveStateToLocal(); loadSelectOptions(); renderUnitList();
+            document.getElementById('cfg-new-unit').value = "";
+        }
+
+        function hapusUnitUsaha(item) {
+            state.unitUsaha = state.unitUsaha.filter(u => u !== item);
+            saveStateToLocal(); loadSelectOptions(); renderUnitList();
+        }
+
+        function tambahKategoriKeluar() {
+            const val = document.getElementById('cfg-new-kategori').value.trim();
+            if(!val) return;
+            state.kategoriKeluar.push(val); saveStateToLocal(); loadSelectOptions(); renderKategoriList();
+            document.getElementById('cfg-new-kategori').value = "";
+        }
+
+        function hapusKategoriKeluar(item) {
+            state.kategoriKeluar = state.kategoriKeluar.filter(k => k !== item);
+            saveStateToLocal(); loadSelectOptions(); renderKategoriList();
+        }
+
+        function renderUnitList() {
+            document.getElementById('list-unit-usaha').innerHTML = state.unitUsaha.map(u => `
+                <li style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid var(--border)">
+                    <span>${u}</span><button class="btn-action btn-delete" style="padding:2px 6px; font-size:0.75rem;" onclick="hapusUnitUsaha('${u}')">Hapus</button>
+                </li>
+            `).join('');
+        }
+
+        function renderKategoriList() {
+            document.getElementById('list-kategori-pengeluaran').innerHTML = state.kategoriKeluar.map(k => `
+                <li style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid var(--border)">
+                    <span>${k}</span><button class="btn-action btn-delete" style="padding:2px 6px; font-size:0.75rem;" onclick="hapusKategoriKeluar('${k}')">Hapus</button>
+                </li>
+            `).join('');
+        }
+
+        function saveGasUrl() {
+            state.gasUrl = document.getElementById('cfg-gas-url').value.trim();
+            localStorage.setItem('bumdes_gas_url', state.gasUrl);
+            alert("URL API Cloud Google Apps Script berhasil dipetakan!");
+        }
+
+        function simpanLogoBumdes(inputLogo) {
+            if (!inputLogo) return;
+            state.profil.logo = inputLogo;
+            saveStateToLocal();
+            const sidebarLogo = document.getElementById("logo-preview-sidebar");
+            const reportLogo = document.getElementById("logo-preview-laporan");
+            if(sidebarLogo) sidebarLogo.src = inputLogo;
+            if(reportLogo) reportLogo.src = inputLogo;
+        }
+
+        function muatLogoSaatMulai() {
+            if (state.profil && state.profil.logo) {
+                const sl = document.getElementById("logo-preview-sidebar");
+                const rl = document.getElementById("logo-preview-laporan");
+                if(sl) sl.src = state.profil.logo;
+                if(rl) rl.src = state.profil.logo;
+            }
+        }
+
+        async function syncToGasBackend(action, payload) {
+            if(!state.gasUrl) return;
+            try {
+                await fetch(state.gasUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action, data: payload })
                 });
-                localStorage.setItem('segono_db', JSON.stringify(db));
-                render();
-                Swal.fire('Berhasil', 'Seluruh keluarga telah dimutasi', 'success');
-            }
+            } catch (e) { console.error("Gagal sinkronisasi cloud: ", e); }
         }
 
-        function resetDB() { if(confirm('Hapus selamanya?')) { db = []; localStorage.setItem('segono_db', JSON.stringify(db)); render(); } }
-        function exportExcel() {
-            const ws = XLSX.utils.json_to_sheet(db);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data_Lengkap");
-            XLSX.writeFile(wb, `Database_Segono_Lengkap.xlsx`);
+        async function tarikDataDariSheets() {
+            const urlWebApp = state.gasUrl; 
+            if(!urlWebApp) return alert("Isi URL Google Apps Script Web App di menu Pengaturan terlebih dahulu.");
+            try {
+                const response = await fetch(`${urlWebApp}?action=readData`);
+                const hasil = await response.json();
+                if (hasil.status === "success") {
+                    if(hasil.dataPemasukan) state.pemasukan = hasil.dataPemasukan;
+                    if(hasil.dataPengeluaran) state.pengeluaran = hasil.dataPengeluaran;
+                    saveStateToLocal();
+                    loadTables();
+                    updateDashboardMetrics();
+                    renderCharts();
+                    alert("SINKRONISASI BERHASIL! Seluruh data transaksi historis awan berhasil diperbarui.");
+                }
+            } catch (error) { alert("Koneksi gagal: " + error); }
         }
     </script>
 </body>
