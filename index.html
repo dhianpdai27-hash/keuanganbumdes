@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUMDes Tampingan - Sistem Pembukuan Keuangan Profesional</title>
+    <title>BUMDes Campurejo Sukses Mandiri - Sistem Pembukuan Keuangan Profesional</title>
     <!-- Google Fonts & Chart.js -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -497,8 +497,8 @@
     <div id="login-screen">
         <div class="login-container">
             <div class="login-header">
-                <h2>BUMDes Tampingan</h2>
-                <p style="color: var(--text-muted)">Sistem Pembukuan Keuangan Syariah & Kontemporer</p>
+                <h2>BUMDes Campurejo Sukses Mandiri</h2>
+                <p style="color: var(--text-muted)">Sistem Pembukuan Keuangan Bumdes</p>
             </div>
             <div class="form-group">
                 <label>Username</label>
@@ -519,7 +519,7 @@
         <nav class="sidebar no-print">
             <div class="sidebar-brand">
                 <img id="logo-preview-sidebar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 2v20M2 12h20'/></svg>" alt="Logo Menu">
-                <span>BUMDes Tampingan</span>
+                <span>BUMDes Campurejo Sukses Mandiri</span>
             </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-item active" onclick="switchModule('dashboard', this)">Dashboard</li>
@@ -691,7 +691,7 @@
                 <div class="section-header no-print" style="background-color: var(--bg-card); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px;">
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <select id="filter-jenis-laporan" class="form-control" style="width:200px;" onchange="generateLaporan()">
-                            <option value="labarugi">Laporan Laba Rugi (Coretax Style)</option>
+                            <option value="labarugi">Laporan Laba Rugi</option>
                             <option value="neraca">Laporan Neraca Standar</option>
                             <option value="aruskas">Laporan Arus Kas</option>
                         </select>
@@ -699,7 +699,7 @@
                     </div>
                     
                     <div style="display:flex; gap:10px;">
-                        <!-- Tombol Tutup Buku Bulanan Kontemporer -->
+                        <!-- Tombol Tutup Buku Bulanan BUMDes -->
                         <button class="btn" id="btn-tutup-buku" style="background-color: var(--warning); color:white; width:auto;" onclick="eksekusiTutupBukuManual()">🔒 Tutup Buku Bulan Ini</button>
                         <button class="btn" style="background-color:#475569; width:auto;" onclick="window.print()">🖨️ Cetak</button>
                     </div>
@@ -710,7 +710,7 @@
                     <div class="report-kop">
                         <img id="logo-preview-laporan" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 2v20M2 12h20'/></svg>" alt="Logo BUMDes">
                         <div class="report-kop-text">
-                            <h1 id="rep-nama-bumdes">BUMDes Tampingan</h1>
+                            <h1 id="rep-nama-bumdes">BUMDes Campurejo</h1>
                             <p id="rep-alamat-bumdes">Alamat Lengkap BUMDes, No. HP, Email</p>
                         </div>
                     </div>
@@ -725,8 +725,8 @@
 
                     <!-- Tanda Tangan -->
                     <div class="report-signatures">
-                        <div class="sig-block"><p id="role-pj-1">Direktur Utama</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-1"></p></div>
-                        <div class="sig-block"><p id="role-pj-2">Sekretaris</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-2"></p></div>
+                        <div class="sig-block"><p id="role-pj-1">Direktur</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-1"></p></div>
+                        <div class="sig-block"><p id="role-pj-2">Bendahara</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-2"></p></div>
                         <div class="sig-block"><p id="role-pj-3">Pengawas</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-3"></p></div>
                         <div class="sig-block"><p id="role-pj-4">Penasehat</p><div class="sig-space"></div><p class="font-bold" id="nama-pj-4"></p></div>
                     </div>
@@ -820,18 +820,19 @@
             unitUsaha: JSON.parse(localStorage.getItem('bumdes_units')) || ["Simpan Pinjam", "Penyewaan", "Wisata Desa", "Unit Dagang"],
             kategoriKeluar: JSON.parse(localStorage.getItem('bumdes_kategoris')) || ["Gaji", "Operasional", "ATK", "Perawatan"],
             profil: JSON.parse(localStorage.getItem('bumdes_profil')) || {
-                nama: "BUMDes Tampingan",
-                alamat: "Jl. Raya Tampingan No. 45, Kecamatan Boja, Kabupaten Kendal",
-                telp: "0812-3456-7890",
-                email: "info@bumdestampingan.id",
+                nama: "BUMDes Campurejo Sukses Mandiri",
+                alamat: "Jl. SEMARANG - BOJA ,KM 03, DESA CAMPUREJO, KEC. BOJA, KAB.KENDAL, JAWA TENGAH.
+KODE POS : 51381",
+                telp: "0813-2929-9059",
+                email: "campurejosuksesmandiri@gmail.com",
                 logo: "",
                 saldoAwalMurni: 0 // Saldo awal murni isian di menu setting
             },
             ttd: JSON.parse(localStorage.getItem('bumdes_ttd')) || {
-                role1: "Direktur Utama", nama1: "Dhian Widhi A",
+                role1: "Direktur", nama1: "Dhian Widhi A",
                 role2: "Sekretaris", nama2: "Siti Rahmawati",
-                role3: "Pengawas Internal", nama3: "Bp. Kahono",
-                role4: "Penasehat Kepala Desa", nama4: "Kepala Desa Tampingan"
+                role3: "Pengawas Internal", nama3: "Bp. Sumiyarto",
+                role4: "Penasehat Bumdes", nama4: "Iin Indrawan"
             },
             historyTutupBuku: JSON.parse(localStorage.getItem('bumdes_closed_months')) || {}, // Menyimpan state tutup buku bulan lalu beserta akumulasi saldonya
             gasUrl: localStorage.getItem('bumdes_gas_url') || ""
