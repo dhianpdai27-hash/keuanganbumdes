@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUMDes Campurejo - Sistem Pembukuan Keuangan Profesional</title>
+    <title>BUMDes Tampingan - Sistem Pembukuan Keuangan Profesional</title>
     <!-- Google Fonts & Chart.js -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -497,8 +497,8 @@
     <div id="login-screen">
         <div class="login-container">
             <div class="login-header">
-                <h2>BUMDes Campurejo</h2>
-                <p style="color: var(--text-muted)">Sistem Pembukuan Keuangan Bumdes</p>
+                <h2>BUMDes Tampingan</h2>
+                <p style="color: var(--text-muted)">Sistem Pembukuan Keuangan Syariah & Kontemporer</p>
             </div>
             <div class="form-group">
                 <label>Username</label>
@@ -519,7 +519,7 @@
         <nav class="sidebar no-print">
             <div class="sidebar-brand">
                 <img id="logo-preview-sidebar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 2v20M2 12h20'/></svg>" alt="Logo Menu">
-                <span>BUMDes Campurejo</span>
+                <span>BUMDes Tampingan</span>
             </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-item active" onclick="switchModule('dashboard', this)">Dashboard</li>
@@ -651,9 +651,10 @@
                         <input type="date" id="in-keluar-tanggal" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Kategori Pengeluaran</label>
-                        <select id="in-keluar-kategori" class="form-control"></select>
-                    </div>
+    <label>Kategori Pengeluaran</label>
+    <input type="text" id="in-keluar-kategori" class="form-control" list="list-saran-kategori" placeholder="Ketik untuk mencari...">
+    <datalist id="list-saran-kategori"></datalist>
+</div>
                     <div class="form-group">
                         <label>Keterangan Pengeluaran</label>
                         <input type="text" id="in-keluar-keterangan" class="form-control" placeholder="Contoh: Pembayaran listrik bulanan">
@@ -691,7 +692,7 @@
                 <div class="section-header no-print" style="background-color: var(--bg-card); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px;">
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <select id="filter-jenis-laporan" class="form-control" style="width:200px;" onchange="generateLaporan()">
-                            <option value="labarugi">Laporan Laba Rugi</option>
+                            <option value="labarugi">Laporan Laba Rugi (Coretax Style)</option>
                             <option value="neraca">Laporan Neraca Standar</option>
                             <option value="aruskas">Laporan Arus Kas</option>
                         </select>
@@ -710,7 +711,7 @@
                     <div class="report-kop">
                         <img id="logo-preview-laporan" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 2v20M2 12h20'/></svg>" alt="Logo BUMDes">
                         <div class="report-kop-text">
-                            <h1 id="rep-nama-bumdes">BUMDes Campurejo</h1>
+                            <h1 id="rep-nama-bumdes">BUMDes Tampingan</h1>
                             <p id="rep-alamat-bumdes">Alamat Lengkap BUMDes, No. HP, Email</p>
                         </div>
                     </div>
@@ -934,10 +935,18 @@
             document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
 
-        function loadSelectOptions() {
-            document.getElementById('in-masuk-unit').innerHTML = state.unitUsaha.map(u => `<option value="${u}">${u}</option>`).join('');
-            document.getElementById('in-keluar-kategori').innerHTML = state.kategoriKeluar.map(k => `<option value="${k}">${k}</option>`).join('');
-        }
+        // UBAH FUNGSI INI
+function loadSelectOptions() {
+    // Load dropdown Unit Usaha Pemasukan
+    document.getElementById('in-masuk-unit').innerHTML = state.unitUsaha.map(u => `<option value="${u}">${u}</option>`).join('');
+    
+    // OPTIMASI DATALIST PENGELUARAN:
+    // Menggunakan format standar datalist browser (<option value="NamaKategori">)
+    // Urutkan berdasarkan abjad secara otomatis (.sort()) agar rapi saat di-scroll
+    const kategoriTerurut = [...state.kategoriKeluar].sort((a, b) => a.localeCompare(b));
+    document.getElementById('list-saran-kategori').innerHTML = kategoriTerurut.map(k => `<option value="${k}"></option>`).join('');
+}
+
 
         function formatRupiah(val) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
@@ -1064,11 +1073,15 @@
             loadTables();
             updateDashboardMetrics();
 
-            if(state.gasUrl) await syncToGasBackend('addPengeluaran', newTrx);
+                if(state.gasUrl) await syncToGasBackend('addPengeluaran', newTrx);
 
-            document.getElementById('in-keluar-keterangan').value = "";
-            document.getElementById('in-keluar-nominal').value = "";
-        }
+    // TAMBAHKAN BARIS INI AGAR KOTAK PENCARIAN BERSIH KEMBALI SETELAH SIMPAN
+    document.getElementById('in-keluar-kategori').value = ""; 
+    
+    document.getElementById('in-keluar-keterangan').value = "";
+    document.getElementById('in-keluar-nominal').value = "";
+}
+
 
         function hapusTransaksi(type, id) {
             // Periksa proteksi tutup buku sebelum hapus
@@ -1345,52 +1358,90 @@
             renderKategoriList();
         }
 
-        function simpanPengaturanProfil() {
+                async function simpanPengaturanProfil() {
             state.profil.saldoAwalMurni = parseFloat(document.getElementById('cfg-saldo-awal-global').value) || 0;
             state.profil.nama = document.getElementById('cfg-nama-bumdes').value;
             state.profil.alamat = document.getElementById('cfg-alamat-bumdes').value;
             state.profil.telp = document.getElementById('cfg-telp-bumdes').value;
             state.profil.email = document.getElementById('cfg-email-bumdes').value;
-            state.profil.logo = document.getElementById('cfg-logo-bumdes').value;
+            
+            let inputLogo = document.getElementById('cfg-logo-bumdes').value;
+            if (inputLogo.includes("imgur.com") && !inputLogo.includes("i.imgur.com")) {
+                let cleanId = inputLogo.trim().split('/').pop();
+                inputLogo = `https://i.imgur.com/${cleanId}.png`;
+                document.getElementById('cfg-logo-bumdes').value = inputLogo;
+            }
+            state.profil.logo = inputLogo;
             
             saveStateToLocal();
             muatLogoSaatMulai();
             updateDashboardMetrics();
-            alert("Profil Instansi & Saldo Awal Global berhasil disimpan dan diperbarui!");
+            
+            // Sinkronisasi konfigurasi profil baru ke cloud
+            if(state.gasUrl) await syncToGasBackend('updateProfil', state.profil);
+            alert("Profil Instansi & Saldo Awal Global berhasil disimpan dan diperbarui di lokal & cloud!");
         }
 
-        function simpanPengaturanTtd() {
+        async function simpanPengaturanTtd() {
             state.ttd.role1 = document.getElementById('cfg-role-1').value; state.ttd.nama1 = document.getElementById('cfg-nama-1').value;
             state.ttd.role2 = document.getElementById('cfg-role-2').value; state.ttd.nama2 = document.getElementById('cfg-nama-2').value;
             state.ttd.role3 = document.getElementById('cfg-role-3').value; state.ttd.nama3 = document.getElementById('cfg-nama-3').value;
             state.ttd.role4 = document.getElementById('cfg-role-4').value; state.ttd.nama4 = document.getElementById('cfg-nama-4').value;
             saveStateToLocal();
-            alert("Struktur Manajemen Penandatangan berhasil diperbarui!");
+            
+            // Sinkronisasi penandatangan ke cloud
+            if(state.gasUrl) await syncToGasBackend('updateTtd', state.ttd);
+            alert("Struktur Manajemen Penandatangan berhasil diperbarui di lokal & cloud!");
         }
 
-        function tambahUnitUsaha() {
+        async function tambahUnitUsaha() {
             const val = document.getElementById('cfg-new-unit').value.trim();
             if(!val) return;
-            state.unitUsaha.push(val); saveStateToLocal(); loadSelectOptions(); renderUnitList();
+            state.unitUsaha.push(val); 
+            saveStateToLocal(); 
+            loadSelectOptions(); 
+            renderUnitList();
             document.getElementById('cfg-new-unit').value = "";
+            
+            // Push data terbaru unit usaha ke cloud
+            if(state.gasUrl) await syncToGasBackend('updateUnitUsaha', state.unitUsaha);
         }
 
-        function hapusUnitUsaha(item) {
+        async function hapusUnitUsaha(item) {
+            if(!confirm(`Hapus unit usaha ${item}?`)) return;
             state.unitUsaha = state.unitUsaha.filter(u => u !== item);
-            saveStateToLocal(); loadSelectOptions(); renderUnitList();
+            saveStateToLocal(); 
+            loadSelectOptions(); 
+            renderUnitList();
+            
+            // Update data unit usaha ke cloud setelah dihapus
+            if(state.gasUrl) await syncToGasBackend('updateUnitUsaha', state.unitUsaha);
         }
 
-        function tambahKategoriKeluar() {
+        async function tambahKategoriKeluar() {
             const val = document.getElementById('cfg-new-kategori').value.trim();
             if(!val) return;
-            state.kategoriKeluar.push(val); saveStateToLocal(); loadSelectOptions(); renderKategoriList();
+            state.kategoriKeluar.push(val); 
+            saveStateToLocal(); 
+            loadSelectOptions(); 
+            renderKategoriList();
             document.getElementById('cfg-new-kategori').value = "";
+            
+            // Push data terbaru kategori pengeluaran ke cloud
+            if(state.gasUrl) await syncToGasBackend('updateKategoriKeluar', state.kategoriKeluar);
         }
 
-        function hapusKategoriKeluar(item) {
+        async function hapusKategoriKeluar(item) {
+            if(!confirm(`Hapus kategori pengeluaran ${item}?`)) return;
             state.kategoriKeluar = state.kategoriKeluar.filter(k => k !== item);
-            saveStateToLocal(); loadSelectOptions(); renderKategoriList();
+            saveStateToLocal(); 
+            loadSelectOptions(); 
+            renderKategoriList();
+            
+            // Update data kategori pengeluaran ke cloud setelah dihapus
+            if(state.gasUrl) await syncToGasBackend('updateKategoriKeluar', state.kategoriKeluar);
         }
+
 
         function renderUnitList() {
             document.getElementById('list-unit-usaha').innerHTML = state.unitUsaha.map(u => `
@@ -1414,8 +1465,17 @@
             alert("URL API Cloud Google Apps Script berhasil dipetakan!");
         }
 
-        function simpanLogoBumdes(inputLogo) {
+                function simpanLogoBumdes(inputLogo) {
             if (!inputLogo) return;
+            
+            // Otomatisasi konversi link standard Imgur menjadi Direct Link Gambar
+            if (inputLogo.includes("imgur.com") && !inputLogo.includes("i.imgur.com")) {
+                // Menangani link tipe https://imgur.com/abcde atau https://imgur.com/a/abcde
+                let cleanId = inputLogo.trim().split('/').pop();
+                inputLogo = `https://i.imgur.com/${cleanId}.png`;
+                document.getElementById('cfg-logo-bumdes').value = inputLogo;
+            }
+
             state.profil.logo = inputLogo;
             saveStateToLocal();
             const sidebarLogo = document.getElementById("logo-preview-sidebar");
@@ -1426,42 +1486,121 @@
 
         function muatLogoSaatMulai() {
             if (state.profil && state.profil.logo) {
+                let logoUrl = state.profil.logo;
+                // Proteksi saat aplikasi pertama kali dimuat jika link belum di-convert
+                if (logoUrl.includes("imgur.com") && !logoUrl.includes("i.imgur.com")) {
+                    let cleanId = logoUrl.trim().split('/').pop();
+                    logoUrl = `https://i.imgur.com/${cleanId}.png`;
+                }
                 const sl = document.getElementById("logo-preview-sidebar");
                 const rl = document.getElementById("logo-preview-laporan");
-                if(sl) sl.src = state.profil.logo;
-                if(rl) rl.src = state.profil.logo;
+                if(sl) sl.src = logoUrl;
+                if(rl) rl.src = logoUrl;
             }
         }
 
-        async function syncToGasBackend(action, payload) {
-            if(!state.gasUrl) return;
+
+                async function syncToGasBackend(action, data) {
+            if (!state.gasUrl) return;
+            
+            let payloadData = data;
+            // Sinkronisasi data transaksi disamakan persis dengan nama kolom di database Anda
+            if (action === 'tambahPemasukan') {
+                payloadData = {
+                    id: data.id,
+                    tanggal: data.tanggal,
+                    unit: data.unit,
+                    keterangan: data.keterangan,
+                    nominal: data.nominal, // Selesai Diperbaiki: Menggunakan nominal, bukan jumlah
+                    petugas: state.currentUser ? state.currentUser.nama : "Admin" 
+                };
+            } else if (action === 'tambahPengeluaran') {
+                payloadData = {
+                    id: data.id,
+                    tanggal: data.tanggal,
+                    kategori: data.kategori,
+                    keterangan: data.keterangan,
+                    nominal: data.nominal, // Selesai Diperbaiki: Menggunakan nominal, bukan jumlah
+                    petugas: state.currentUser ? state.currentUser.nama : "Admin" 
+                };
+            }
+
             try {
                 await fetch(state.gasUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: action, data: payload })
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: action, data: payloadData })
                 });
-            } catch (e) { console.error("Gagal sinkronisasi cloud: ", e); }
+            } catch (error) {
+                console.error("Gagal sinkronisasi otomatis ke cloud: ", error);
+            }
         }
-
-        async function tarikDataDariSheets() {
+                async function tarikDataDariSheets() {
             const urlWebApp = state.gasUrl; 
             if(!urlWebApp) return alert("Isi URL Google Apps Script Web App di menu Pengaturan terlebih dahulu.");
+            
             try {
+                // Memberikan indikator loading di tombol menu sidebar agar user tahu proses sedang berjalan
+                const btnSync = document.getElementById('menu-pemasukan').parentElement.querySelector("li[onclick*='tarikDataDariSheets']");
+                const originalText = btnSync.innerText;
+                btnSync.innerText = "⏳ Menghubungkan...";
+
                 const response = await fetch(`${urlWebApp}?action=readData`);
                 const hasil = await response.json();
+                
                 if (hasil.status === "success") {
-                    if(hasil.dataPemasukan) state.pemasukan = hasil.dataPemasukan;
-                    if(hasil.dataPengeluaran) state.pengeluaran = hasil.dataPengeluaran;
-                    saveStateToLocal();
+                    // 1. Ambil data Transaksi Historis dan bersihkan format propertinya
+                    if(hasil.dataPemasukan) {
+                        state.pemasukan = hasil.dataPemasukan.map(m => ({
+                            id: m.id,
+                            tanggal: m.tanggal,
+                            unit: m.unit,
+                            keterangan: m.keterangan,
+                            nominal: parseFloat(m.nominal || m.jumlah || 0), // Memastikan dibaca sebagai .nominal
+                            petugas: m.petugas
+                        }));
+                    }
+                    if(hasil.dataPengeluaran) {
+                        state.pengeluaran = hasil.dataPengeluaran.map(k => ({
+                            id: k.id,
+                            tanggal: k.tanggal,
+                            kategori: k.kategori,
+                            keterangan: k.keterangan,
+                            nominal: parseFloat(k.nominal || k.jumlah || 0), // Memastikan dibaca sebagai .nominal
+                            petugas: k.petugas
+                        }));
+                    }
+                    
+                    // 2. SOLUSI MULTI-DEVICE: Ambil ekosistem pengaturan dari Cloud jika tersedia di Sheets
+                    if(hasil.unitUsaha && hasil.unitUsaha.length > 0) state.unitUsaha = hasil.unitUsaha;
+                    if(hasil.kategoriKeluar && hasil.kategoriKeluar.length > 0) state.kategoriKeluar = hasil.kategoriKeluar;
+                    if(hasil.profil) state.profil = hasil.profil;
+                    if(hasil.ttd) state.ttd = hasil.ttd;
+                    
+                    // Simpan hasil tarikan ke database lokal device ini
+                    saveStateToLocal();  
+
+                    // Refresh visual UI aplikasi di HP ini
+                    loadSelectOptions();
                     loadTables();
+                    loadPengaturanForm();
                     updateDashboardMetrics();
                     renderCharts();
-                    alert("SINKRONISASI BERHASIL! Seluruh data transaksi historis awan berhasil diperbarui.");
+                    muatLogoSaatMulai();
+                    
+                    btnSync.innerText = originalText;
+                    alert("SINKRONISASI BERHASIL!\n\nSeluruh data transaksi, unit usaha, kategori pengeluaran, dan profil instansi berhasil disamakan dengan pusat data awan (Google Sheets).");
+                } else {
+                    btnSync.innerText = originalText;
+                    alert("Gagal sinkronisasi: Respon server tidak sukses.");
                 }
-            } catch (error) { alert("Koneksi gagal: " + error); }
+            } catch (error) { 
+                document.getElementById('menu-pemasukan').parentElement.querySelector("li[onclick*='tarikDataDariSheets']").innerText = "🔄 Tarik Data Sheets";
+                alert("Koneksi gagal atau format Apps Script belum mendukung sinkronisasi pengaturan: " + error); 
+            }
         }
+
     </script>
 </body>
 </html>
