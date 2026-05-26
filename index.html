@@ -1262,20 +1262,18 @@ function loadSelectOptions() {
                     <thead><tr><th>KOMPONEN AKUNTANSI NERACA</th><th class="text-right">SALDO AKHIR PERIODE</th></tr></thead>
                     <tbody>
                         <tr class="row-category"><td colspan="2">ASET / AKTIVA (Harta)</td></tr>
-                        <!-- Tampilkan Saldo Awal Bulan Ini sebagai informasi pelengkap transparan -->
                         <tr><td style="padding-left:2rem; color:var(--text-muted); font-style:italic;">Saldo Kas Awal Bulan (Kumulatif Bulan Lalu)</td><td class="text-right style='color:var(--text-muted); font-style:italic;'">${formatRupiah(saldoAwalBulanIni)}</td></tr>
                         <tr><td style="padding-left:2rem; font-weight:600;">Kas Aktif Hasil Transaksi Berjalan (Bank & Tunai)</td><td class="text-right font-bold">${formatRupiah(kasAkhirBulanIni)}</td></tr>
-                        <tr><td style="padding-left:2rem;">Aset Inventaris Lapangan Tetap</td><td class="text-right">${formatRupiah(150000000)}</td></tr>
-                        <tr class="row-total"><td>TOTAL AKTIVA (HARTA BUMDES)</td><td class="text-right">${formatRupiah(kasAkhirBulanIni + 150000000)}</td></tr>
+                        <tr><td style="padding-left:2rem;">Aset Inventaris Lapangan Tetap</td><td class="text-right">${formatRupiah(0)}</td></tr>
+                        <tr class="row-total"><td>TOTAL AKTIVA (HARTA BUMDES)</td><td class="text-right">${formatRupiah(kasAkhirBulanIni + 0)}</td></tr>
                         
                         <tr class="row-category"><td colspan="2">KEWAJIBAN & CAPITAL MODAL (PASIVA)</td></tr>
                         <tr><td style="padding-left:2rem;">Kewajiban Pokok Pihak Ketiga</td><td class="text-right">${formatRupiah(0)}</td></tr>
-                        <tr><td style="padding-left:2rem;">Modal Utama Awal Pendirian Desa</td><td class="text-right">${formatRupiah(150000000)}</td></tr>
+                        <tr><td style="padding-left:2rem;">Modal Utama Awal Pendirian Desa</td><td class="text-right">${formatRupiah(0)}</td></tr>
                         <tr><td style="padding-left:2rem; font-weight:600;">Sisa Hasil Usaha / Laba Berjalan Akumulatif</td><td class="text-right font-bold">${formatRupiah(kasAkhirBulanIni)}</td></tr>
-                        <tr class="row-total"><td>TOTAL PASIVA (MODAL + UTANG)</td><td class="text-right">${formatRupiah(kasAkhirBulanIni + 150000000)}</td></tr>
+                        <tr class="row-total"><td>TOTAL PASIVA (MODAL + UTANG)</td><td class="text-right">${formatRupiah(kasAkhirBulanIni + 0)}</td></tr>
                     </tbody></table>`;
                 container.innerHTML = html;
-
             } else if(jLap === 'aruskas') {
                 document.getElementById('rep-judul-jenis').innerText = "LAPORAN ARUS KAS MASUK KELUAR BULANAN";
                 
