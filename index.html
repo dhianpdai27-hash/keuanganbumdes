@@ -692,7 +692,7 @@
                 <div class="section-header no-print" style="background-color: var(--bg-card); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px;">
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <select id="filter-jenis-laporan" class="form-control" style="width:200px;" onchange="generateLaporan()">
-                            <option value="labarugi">Laporan Laba Rugi (Coretax Style)</option>
+                            <option value="labarugi">Laporan Laba Rugi</option>
                             <option value="neraca">Laporan Neraca Standar</option>
                             <option value="aruskas">Laporan Arus Kas</option>
                         </select>
@@ -1222,7 +1222,7 @@ function loadSelectOptions() {
             let saldoAwalBulanIni = hitungSaldoAwalBulanPilihan(bulanStr);
 
             if(jLap === 'labarugi') {
-                document.getElementById('rep-judul-jenis').innerText = "LAPORAN LABA RUGI OPERASIONAL MURNI";
+                document.getElementById('rep-judul-jenis').innerText = "LAPORAN LABA RUGI OPERASIONAL";
                 
                 let rekapIn = {}; state.unitUsaha.forEach(u => rekapIn[u] = 0);
                 filteredPemasukan.forEach(m => { if(rekapIn[m.unit] !== undefined) rekapIn[m.unit] += m.nominal; });
