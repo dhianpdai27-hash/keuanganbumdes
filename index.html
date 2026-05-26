@@ -1466,37 +1466,45 @@ function loadSelectOptions() {
                 function simpanLogoBumdes(inputLogo) {
             if (!inputLogo) return;
             
-            // Otomatisasi konversi link standard Imgur menjadi Direct Link Gambar
-            if (inputLogo.includes("imgur.com") && !inputLogo.includes("i.imgur.com")) {
-                // Menangani link tipe https://imgur.com/abcde atau https://imgur.com/a/abcde
-                let cleanId = inputLogo.trim().split('/').pop();
-                inputLogo = `https://i.imgur.com/${cleanId}.png`;
-                document.getElementById('cfg-logo-bumdes').value = inputLogo;
+            // Otomatisasi konversi link standard Imgur menjadi Direct Link Gambar yang valid
+            let cleanLogo = inputLogo.trim();
+            if (cleanLogo.includes("imgur.com") && !cleanLogo.includes("i.imgur.com")) {
+                let cleanId = cleanLogo.split('/').pop();
+                // Jika berupa link galeri/album imgur, bersihkan id-nya
+                if(cleanLogo.includes("/a/")) cleanId = cleanLogo.split('/a/').pop();
+                cleanLogo = `https://i.imgur.com/${cleanId}.png`;
+                document.getElementById('cfg-logo-bumdes').value = cleanLogo;
             }
 
-            state.profil.logo = inputLogo;
+            state.profil.logo = cleanLogo;
             saveStateToLocal();
+            
+            // Update langsung ke semua element gambar di UI secara aman
             const sidebarLogo = document.getElementById("logo-preview-sidebar");
             const reportLogo = document.getElementById("logo-preview-laporan");
-            if(sidebarLogo) sidebarLogo.src = inputLogo;
-            if(reportLogo) reportLogo.src = inputLogo;
+            if(sidebarLogo) sidebarLogo.src = cleanLogo;
+            if(reportLogo) reportLogo.src = cleanLogo;
         }
 
         function muatLogoSaatMulai() {
             if (state.profil && state.profil.logo) {
-                let logoUrl = state.profil.logo;
-                // Proteksi saat aplikasi pertama kali dimuat jika link belum di-convert
+                let logoUrl = state.profil.logo.trim();
+                
                 if (logoUrl.includes("imgur.com") && !logoUrl.includes("i.imgur.com")) {
-                    let cleanId = logoUrl.trim().split('/').pop();
+                    let cleanId = logoUrl.split('/').pop();
+                    if(logoUrl.includes("/a/")) cleanId = logoUrl.split('/a/').pop();
                     logoUrl = `https://i.imgur.com/${cleanId}.png`;
                 }
-                const sl = document.getElementById("logo-preview-sidebar");
-                const rl = document.getElementById("logo-preview-laporan");
-                if(sl) sl.src = logoUrl;
-                if(rl) rl.src = logoUrl;
+                
+                // Gunakan setTimeout tipis agar memastikan DOM HTML sudah siap sepenuhnya saat app loading
+                setTimeout(() => {
+                    const sl = document.getElementById("logo-preview-sidebar");
+                    const rl = document.getElementById("logo-preview-laporan");
+                    if(sl) sl.src = logoUrl;
+                    if(rl) rl.src = logoUrl;
+                }, 100);
             }
         }
-
 
                 async function syncToGasBackend(action, data) {
             if (!state.gasUrl) return;
